@@ -19,7 +19,7 @@
                     <i class="fas fa-user"></i>
                 </div>
                 <div class="msg-header">
-                    <p>Hello there, how can I help you?</p>
+                    <p>Selamat datang di Stimbot! Ketik help untuk petunjuk bot!</p>
                 </div>
             </div>
         </div>

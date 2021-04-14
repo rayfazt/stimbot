@@ -15,6 +15,11 @@ $KataPenting = "NULL";
 $ArrKataPenting = "";
 $Topik = "NULL";
 $ArrTopik = "NULL";
+
+if (preg_match("/HELP|help|Help|[Bb]agaimana/",$getMesg)){
+    echo "Tambah Deadline: Masukkan tanggal, matkul, jenis, topik(opsional) <br> Apa? : Menampilkan Deadline";
+}
+
 if (preg_match_all("/(0[1-9]|[1-2][0-9]|3[0-1])-(0[1-9]|1[0-2])-[0-9]{4}/",$getMesg,$arr_date)) {
     for ($i = 0; $i < count($arr_date[0]); $i++){
         $arr_ymd = DateTime::createFromFormat('d-m-Y', $arr_date[0][$i])->format('Y-m-d');
