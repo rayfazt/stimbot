@@ -9,7 +9,7 @@
 </head>
 <body>
     <div class="wrapper">
-        <div class="title">Simple Online Chatbot</div>
+        <div class="title">Stimbot</div>
         <div class="form">
             <div class="bot-inbox inbox">
                 <div class="icon">
