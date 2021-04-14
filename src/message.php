@@ -1,7 +1,9 @@
 <?php
 // connecting to database
 $conn = mysqli_connect("sql6.freesqldatabase.com", "sql6405141", "BkxHy17U62","sql6405141") or die("Database Error");
-
+if (mysqli_connect_errno()){
+    echo "Failed to connect to MySQL: " . mysqli_connect_error();
+}
 // getting user message through ajax
 $getMesg = mysqli_real_escape_string($conn, $_POST['text']);
 $arr_date = array();
@@ -22,43 +24,95 @@ function date_sort($a, $b) {
 
 if (preg_match("/HELP|help|Help|[Bb]agaimana/",$getMesg)){
     echo "Tambah Deadline: Masukkan tanggal, matkul, jenis, topik(opsional) <br> Apa? : Menampilkan Deadline";
+    return;
 }
 
 
 if (preg_match("/[Aa]pa/",$getMesg) && preg_match("/[Dd]eadline/",$getMesg)){
+    //Filter N Waktu
+    $sql = "";
+    $waktu = False;
     if(preg_match_all("/(0[1-9]|[1-2][0-9]|3[0-1])-(0[1-9]|1[0-2])-[0-9]{4}/",$getMesg,$arr_date)){
         //sort dulu tanggalnya supaya between di sql ga salah
         //Deadline Rentang waktu tertentu
-        $arr_ymd = DateTime::createFromFormat('d-m-Y', $arr_date[0][0])->format('Y-m-d');
-        $date1 = sprintf($arr_ymd);
-        $arr_ymd2 = DateTime::createFromFormat('d-m-Y', $arr_date[0][1])->format('Y-m-d');
-        $date2 = sprintf($arr_ymd2);
-        $hasil = date_sort($date2, $date1);
-        if($hasil > 0){
-            $datek1 = $date1;
-            $datek2 = $date2;
+        if(count($arr_date[0])>1){
+            $arr_ymd = DateTime::createFromFormat('d-m-Y', $arr_date[0][0])->format('Y-m-d');
+            $date1 = sprintf($arr_ymd);
+            $arr_ymd2 = DateTime::createFromFormat('d-m-Y', $arr_date[0][1])->format('Y-m-d');
+            $date2 = sprintf($arr_ymd2);
+            $hasil = date_sort($date2, $date1);
+            if($hasil > 0){
+                $datek1 = $date1;
+                $datek2 = $date2;
+            }else{
+                $datek1 = $date2;
+                $datek2 = $date1;
+            }
+            $sql = "SELECT * FROM tabel WHERE (date BETWEEN '$datek1' AND '$datek2')";
         }else{
-            $datek1 = $date2;
-            $datek2 = $date1;
+            $arr_ymd = DateTime::createFromFormat('d-m-Y', $arr_date[0][0])->format('Y-m-d');
+            $date1 = sprintf($arr_ymd);
+            $sql = "SELECT * FROM tabel WHERE date LIKE '%$date1%'";
         }
-        $sql = "SELECT * FROM tabel WHERE (date BETWEEN '$datek1' AND '$datek2')";
+        $waktu = True;
     }else if(preg_match_all("/[0-9] [Mm]inggu/",$getMesg, $tampung)){
         //Deadline N minggu ke depan
         $minggu = sprintf($tampung[0][0][0]);
         $Nminggu = $minggu + 0;
         $sql = "SELECT * FROM tabel WHERE date BETWEEN CURDATE() AND CURDATE() + INTERVAL $Nminggu WEEK";
+        $waktu = True;
     }else if(preg_match_all("/[0-9] [Hh]ari/",$getMesg, $tampung)){
         //Deadline N hari ke depan
         $hari = sprintf($tampung[0][0][0]);
         $Nhari = $hari + 0;
         $sql = "SELECT * FROM tabel WHERE date BETWEEN CURDATE() AND CURDATE() + INTERVAL $Nhari DAY";
+        $waktu = True;
     }else if(preg_match_all("/[Hh]ari [Ii]ni/",$getMesg, $tampung)){
         //Deadline Hari ini
         $sql = "SELECT * FROM tabel WHERE date = CURDATE()";
-    }else{
-        //Deadline keseluruhan
-        $sql = "SELECT * FROM tabel";
+        $waktu = True;
+    }else if(preg_match_all("/[Bb]esok/",$getMesg, $tampung)){
+        //Deadline Besok
+        $sql = "SELECT * FROM tabel WHERE date = CURDATE() AND CURDATE() + INTERVAL 1 DAY";
+        $waktu = True;
+    }else if(preg_match_all("/[Mm]inggu [Ii]ni/",$getMesg, $tampung)){
+        //Deadline Minggu ini
+        $sql = "SELECT * FROM tabel WHERE date BETWEEN CURDATE() AND CURDATE() + INTERVAL 1 WEEK";
+        $waktu = True;
+    }else if(preg_match_all("/[Mm]inggu [Dd]epan/",$getMesg, $tampung)){
+        //Deadline Minggu Depan
+        $sql = "SELECT * FROM tabel WHERE date BETWEEN CURDATE() + INTERVAL 1 WEEK AND CURDATE() + INTERVAL 2 WEEK";
+        $waktu = True;
     }
+    
+    //Filter Jenis
+    if (preg_match("/[Tt]ugas [Kk]ecil|[Tt]ucil/",$getMesg)){
+        $KataPenting = "Tucil";
+    }else if (preg_match("/[Tt]ugas [Bb]esar|[Tt]ubes/",$getMesg)){
+        $KataPenting = "Tubes";
+    }else if (preg_match("/[Pp]raktikum|[Pp]rak/",$getMesg)){
+        $KataPenting = "Praktikum";
+    }else if (preg_match("/[Kk]uis/",$getMesg)){
+        $KataPenting = "Kuis";
+    }else if (preg_match("/[Uu]jian [Tt]engah [Ss]emester|[Uu][Tt][Ss]/",$getMesg)){
+        $KataPenting = "UTS";
+    }else if (preg_match("/[Uu]jian [Aa]khir [Ss]emester|[Uu][Aa][Ss]/",$getMesg)){
+        $KataPenting = "UAS";
+    }else{
+        $KataPenting = "NULL";
+    }
+
+    if($waktu){
+        $sql .= " AND katapenting LIKE '%$KataPenting%'";
+    }else{
+        if($KataPenting != "NULL"){
+            $sql = "SELECT * FROM tabel WHERE katapenting LIKE '%$KataPenting%'";
+        }else{
+            //Deadline keseluruhan
+            $sql = "SELECT * FROM tabel";
+        }
+    }
+
     if($result = mysqli_query($conn, $sql)){
         if(mysqli_num_rows($result) > 0){
             echo "[DAFTAR DEADLINE]";
@@ -93,6 +147,7 @@ if (preg_match("/[Aa]pa/",$getMesg) && preg_match("/[Dd]eadline/",$getMesg)){
     } else{
         echo "ERROR: Could not able to execute $sql. " . mysqli_error($conn);
     }
+    return;
 }
 
 //Rapihin ID
@@ -104,6 +159,7 @@ if (preg_match("/[Rr]eset|[Hh]apus [Ss]emua|[Dd]elete [Aa]ll/",$getMesg)){
     } else {
         echo "Error: " . $sql . "<br>" . mysqli_error($conn);
     }
+    return;
 }
 
 //Insert Deadline baru
@@ -152,8 +208,10 @@ if (preg_match_all("/(0[1-9]|[1-2][0-9]|3[0-1])-(0[1-9]|1[0-2])-[0-9]{4}/",$getM
     }else{
         echo "Maaf, aku gatau kode matkulnya? Cek masukkan kamu ya :)";
     }
+    return;
 }
 
+echo "Maaf, kami tidak mengerti maksud kamu :(";
 
 /*
 //checking user query to database query
