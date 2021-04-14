@@ -20,6 +20,15 @@ if (preg_match("/HELP|help|Help|[Bb]agaimana/",$getMesg)){
     echo "Tambah Deadline: Masukkan tanggal, matkul, jenis, topik(opsional) <br> Apa? : Menampilkan Deadline";
 }
 
+if (preg_match("/[Rr]eset|[Hh]apus [Ss]emua|[Dd]elete [Aa]ll/",$getMesg)){
+    $sql = "ALTER TABLE tabel DROP id;";
+    $sql .= "ALTER TABLE  `tabel` ADD `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST";
+    if (mysqli_multi_query($conn, $sql)) {
+        echo "Deadline berhasil disetting ulang";
+    } else {
+        echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+    }
+}
 if (preg_match_all("/(0[1-9]|[1-2][0-9]|3[0-1])-(0[1-9]|1[0-2])-[0-9]{4}/",$getMesg,$arr_date)) {
     for ($i = 0; $i < count($arr_date[0]); $i++){
         $arr_ymd = DateTime::createFromFormat('d-m-Y', $arr_date[0][$i])->format('Y-m-d');
@@ -46,10 +55,14 @@ if (preg_match_all("/(0[1-9]|[1-2][0-9]|3[0-1])-(0[1-9]|1[0-2])-[0-9]{4}/",$getM
             } else {
                 echo "Error: " . $sql . "<br>" . mysqli_error($conn);
             }
+
         }
+        else{
+            echo "Tugas atau praktikum? Cek masukkan kamu ya :)";
+        }
+    }else{
+        echo "Maaf, kku gatau kode matkulnya? Cek masukkan kamu ya :)";
     }
-} else {
-    echo false;
 }
 
 if (preg_match("/[Aa]pa/",$getMesg)){
@@ -58,17 +71,22 @@ if (preg_match("/[Aa]pa/",$getMesg)){
         if(mysqli_num_rows($result) > 0){
             echo "<table>";
                 echo "<tr>";
-                    echo "<th>date</th>";
-                    echo "<th>matkul</th>";
-                    echo "<th>kata penting</th>";
-                    echo "<th>topik</th>";
+                    echo "<th>Tanggal</th>";
+                    echo "<th>Matkul</th>";
+                    echo "<th>Jenis</th>";
+                    echo "<th>Topik</th>";
                 echo "</tr>";
             while($row = mysqli_fetch_array($result)){
                 echo "<tr>";
-                    echo "<td>" . $row['date'] . "</td>";
+                    $tanggal = DateTime::createFromFormat('Y-m-d', $row['date'])->format('d/m/Y');
+                    echo "<td>" . $tanggal . "</td>";
                     echo "<td>" . $row['matkul'] . "</td>";
                     echo "<td>" . $row['katapenting'] . "</td>";
-                    echo "<td>" . $row['topik'] . "</td>";
+                    if ($row['topik']!="NULL"){
+                        echo "<td>" . $row['topik'] . "</td>";
+                    }else{
+                        echo "<td>-</td>";
+                    }
                 echo "</tr>";
             }
             echo "</table>";
