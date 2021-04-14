@@ -23,7 +23,24 @@ function date_sort($a, $b) {
 
 
 if (preg_match("/HELP|help|Help|[Bb]agaimana/",$getMesg)){
-    echo "Tambah Deadline: Masukkan tanggal, matkul, jenis, topik(opsional) <br> Apa? : Menampilkan Deadline";
+    echo "[HELP/BANTUAN]";
+    echo "<table class='items'>";
+    echo "<tr>";
+    echo "<th>Fitur</th>";
+    echo "<th>Keterangan</th>";
+    echo "</tr>";
+    
+    echo "<tr>";
+    echo "<td style='font-size:small;font-weight:700'>" . "Tambah Jadwal";
+    echo "<td>" . "Masukkan tanggal, matkul, jenis, topik(opsional)";
+    echo "</tr>";
+
+    echo "<tr>";
+    echo "<td style='font-size:small;font-weight:700'>" . "Show Jadwal";
+    echo "<td>" . "Apa Deadline [Waktu]";
+    echo "</tr>";
+
+    echo "</table>";
     return;
 }
 
@@ -42,16 +59,19 @@ if (preg_match("/[Aa]pa/",$getMesg) && preg_match("/[Dd]eadline/",$getMesg)){
             $date2 = sprintf($arr_ymd2);
             $hasil = date_sort($date2, $date1);
             if($hasil > 0){
-                $datek1 = $date1;
-                $datek2 = $date2;
+                $datekk1 = strtotime($date1);
+                $datek1 = date('Y-m-d',$datekk1);
+                $datekk2 = strtotime($date2);
+                $datek2 = date('Y-m-d',$datekk2);
             }else{
-                $datek1 = $date2;
-                $datek2 = $date1;
+                $datekk1 = strtotime($date2);
+                $datek1 = date('Y-m-d',$datekk1);
+                $datekk2 = strtotime($date1);
+                $datek2 = date('Y-m-d',$datekk2);
             }
-            $sql = "SELECT * FROM tabel WHERE (date BETWEEN '$datek1' AND '$datek2')";
+            $sql = "SELECT * FROM tabel WHERE date BETWEEN '$datek1' AND '$datek2'";
         }else{
-            $arr_ymd = DateTime::createFromFormat('d-m-Y', $arr_date[0][0])->format('Y-m-d');
-            $date1 = sprintf($arr_ymd);
+            $date1 = DateTime::createFromFormat('d-m-Y', $arr_date[0][0])->format('Y-m-d');
             $sql = "SELECT * FROM tabel WHERE date LIKE '%$date1%'";
         }
         $waktu = True;
@@ -102,23 +122,23 @@ if (preg_match("/[Aa]pa/",$getMesg) && preg_match("/[Dd]eadline/",$getMesg)){
         $KataPenting = "NULL";
     }
 
-    if($waktu){
+    if($waktu && $KataPenting!="NULL"){
         $sql .= " AND katapenting LIKE '%$KataPenting%'";
-    }else{
+    }else if (!$waktu){
         if($KataPenting != "NULL"){
             $sql = "SELECT * FROM tabel WHERE katapenting LIKE '%$KataPenting%'";
-        }else{
+        }else if ($sql == ""){
             //Deadline keseluruhan
             $sql = "SELECT * FROM tabel";
         }
     }
-
+    
     if($result = mysqli_query($conn, $sql)){
         if(mysqli_num_rows($result) > 0){
             echo "[DAFTAR DEADLINE]";
             echo "<table class='items'>";
-                echo "<tr>";
-                    echo "<th>ID</th>";
+            echo "<tr>";
+            echo "<th>ID</th>";
                     echo "<th>Tanggal</th>";
                     echo "<th>Matkul</th>";
                     echo "<th>Jenis</th>";
