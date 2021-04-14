@@ -5,33 +5,83 @@ $conn = mysqli_connect("sql6.freesqldatabase.com", "sql6405141", "BkxHy17U62","s
 
 // getting user message through ajax
 $getMesg = mysqli_real_escape_string($conn, $_POST['text']);
-$date = "";
-$KataPenting = "";
-$Matkul = "";
-$Topik = "";
-$date = array();
-if (preg_match_all("/[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])/",$getMesg,$date)) {
-    for ($i = 0; $i < count($date[0]); $i++){
-        print_r($date[0][$i]);
-        print_r("\n");
+$arr_date = array();
+$arr_ymd = array();
+$date = "NULL";
+$date2 = "NULL";
+$Matkul = "NULL";
+$ArrMatkul = "";
+$KataPenting = "NULL";
+$ArrKataPenting = "";
+$Topik = "NULL";
+$ArrTopik = "NULL";
+if (preg_match_all("/(0[1-9]|[1-2][0-9]|3[0-1])-(0[1-9]|1[0-2])-[0-9]{4}/",$getMesg,$arr_date)) {
+    for ($i = 0; $i < count($arr_date[0]); $i++){
+        $arr_ymd = DateTime::createFromFormat('d-m-Y', $arr_date[0][$i])->format('Y-m-d');
+        $date = sprintf($arr_ymd);
+        echo $date."\n";
     }
-    if (preg_match_all("/Tubes|Tucil|Kuis|Praktikum|UTS|UAS/",$getMesg,$KataPenting)){
-        print_r($KataPenting[0][0]);
-        print_r("\n");
-        if (preg_match_all("/[A-Z]{2}[0-9]{4}/",$getMesg,$Matkul)){
-            print_r($Matkul[0][0]);
-            print_r("\n");
-            if(preg_match_all("/topik(.*)|topiknya(.*)/", $getMesg,$Topik)){
-                print_r($Topik[1][0]);
+    if (preg_match_all("/[A-Z]{2}[0-9]{4}/",$getMesg,$ArrMatkul)){
+        $Matkul = sprintf($ArrMatkul[0][0]);
+        echo $Matkul."\n";
+        if (preg_match_all("/Tubes|Tucil|Kuis|Praktikum|UTS|UAS/",$getMesg,$ArrKataPenting)){
+            $KataPenting = sprintf($ArrKataPenting[0][0]);
+            echo $KataPenting."\n";
+            if(preg_match_all("/topik(.*)/", $getMesg,$ArrTopik)){
+                $Topik = sprintf($ArrTopik[1][0]);
+                echo $Topik."\n";
+            }else{
+                $Topik = "NULL";
+            }
+
+            $sql = "INSERT INTO tabel (`date`, `matkul`, `katapenting`, `topik`) VALUES ('$date', '$Matkul', '$KataPenting','$Topik')";
+
+            if (mysqli_query($conn, $sql)) {
+                echo "<br> Deadline berhasil dimasukkan";
+            } else {
+                echo "Error: " . $sql . "<br>" . mysqli_error($conn);
             }
         }
     }
 } else {
     echo false;
 }
+
+if (preg_match("/[Aa]pa/",$getMesg)){
+    $sql = "SELECT * FROM tabel";
+    if($result = mysqli_query($conn, $sql)){
+        if(mysqli_num_rows($result) > 0){
+            echo "<table>";
+                echo "<tr>";
+                    echo "<th>date</th>";
+                    echo "<th>matkul</th>";
+                    echo "<th>kata penting</th>";
+                    echo "<th>topik</th>";
+                echo "</tr>";
+            while($row = mysqli_fetch_array($result)){
+                echo "<tr>";
+                    echo "<td>" . $row['date'] . "</td>";
+                    echo "<td>" . $row['matkul'] . "</td>";
+                    echo "<td>" . $row['katapenting'] . "</td>";
+                    echo "<td>" . $row['topik'] . "</td>";
+                echo "</tr>";
+            }
+            echo "</table>";
+            // Free result set
+            mysqli_free_result($result);
+        } else{
+            echo "No records matching your query were found.";
+        }
+    } else{
+        echo "ERROR: Could not able to execute $sql. " . mysqli_error($link);
+    }
+}
+
+
 /*
 //checking user query to database query
-$check_data = "SELECT replies FROM chatbot WHERE queries LIKE '%$getMesg%'";
+//$check_data = "SELECT replies FROM chatbot WHERE queries LIKE '%$getMesg%'";
+$check_data = "SELECT * FROM tabel WHERE arr_date = '$arr_ymd'";
 $run_query = mysqli_query($conn, $check_data) or die("Error");
 
 // if user query matched to database query we'll show the reply otherwise it go to else statement
@@ -45,4 +95,5 @@ if(mysqli_num_rows($run_query) > 0){
     echo "Sorry can't be able to understand you!";
 }
 */
+
 ?>
