@@ -8,19 +8,18 @@ if (mysqli_connect_errno()){
 $getMesg = mysqli_real_escape_string($conn, $_POST['text']);
 $arr_date = array();
 $arr_ymd = array();
-$date = "NULL";
-$date2 = "NULL";
-$Matkul = "NULL";
-$ArrMatkul = "";
-$KataPenting = "NULL";
-$ArrKataPenting = "";
-$Topik = "NULL";
-$ArrTopik = "NULL";
+$regexTucil = "/[Tt]ugas [Kk]ecil|[Tt]ucil/";
+$regexTubes = "/[Tt]ugas [Bb]esar|[Tt]ubes/";
+$regexPraktikum = "/[Pp]raktikum|[Pp]rak/";
+$regexKuis = "/[Kk]uis/";
+$regexUTS = "/[Uu]jian [Tt]engah [Ss]emester|[Uu][Tt][Ss]/";
+$regexUAS = "/[Uu]jian [Aa]khir [Ss]emester|[Uu][Aa][Ss]/";
+$regexDate = "/(0[1-9]|[1-2][0-9]|3[0-1])-(0[1-9]|1[0-2])-[0-9]{4}/";
+$regexMatkul = "/[A-Z]{2}[0-9]{4}/";
 
 function date_sort($a, $b) {
     return strtotime($a) - strtotime($b);
 }
-
 
 if (preg_match("/HELP|help|Help|[Bb]agaimana/",$getMesg)){
     echo "[HELP/BANTUAN]";
@@ -34,22 +33,60 @@ if (preg_match("/HELP|help|Help|[Bb]agaimana/",$getMesg)){
     echo "<td style='font-size:small;font-weight:700'>" . "Tambah Jadwal";
     echo "<td>" . "Masukkan tanggal, matkul, jenis, topik(opsional)";
     echo "</tr>";
-
+    
     echo "<tr>";
     echo "<td style='font-size:small;font-weight:700'>" . "Show Jadwal";
     echo "<td>" . "Apa Deadline [Waktu]";
     echo "</tr>";
-
+    
     echo "</table>";
     return;
 }
 
 
-if (preg_match("/[Aa]pa/",$getMesg) && preg_match("/[Dd]eadline/",$getMesg)){
+if (preg_match("/[Kk]apan/",$getMesg) && preg_match_all($regexMatkul,$getMesg,$ArrMatkul)){
+    $Matkul = sprintf($ArrMatkul[0][0]);
+    if (preg_match($regexTucil,$getMesg)){
+        $KataPenting = "Tucil";
+    }else if (preg_match($regexTubes,$getMesg)){
+        $KataPenting = "Tubes";
+    }else if (preg_match($regexPraktikum,$getMesg)){
+        $KataPenting = "Praktikum";
+    }else if (preg_match($regexKuis,$getMesg)){
+        $KataPenting = "Kuis";
+    }else if (preg_match($regexUTS,$getMesg)){
+        $KataPenting = "UTS";
+    }else if (preg_match($regexUAS,$getMesg)){
+        $KataPenting = "UAS";
+    }else{
+        $KataPenting = "NULL";
+    }
+    if($KataPenting != "NULL"){
+        $sql = "SELECT * FROM tabel WHERE matkul = '$Matkul' AND katapenting = '$KataPenting'";
+    }else{
+        echo "Jadwal Tugas, Ujian, Atau Praktikum?? Coba lagi ya hehe";
+        return;
+    }
+    if($result = mysqli_query($conn, $sql)){
+        if(mysqli_num_rows($result) > 0){
+            while($row = mysqli_fetch_array($result)){
+                $tanggal = DateTime::createFromFormat('Y-m-d', $row['date'])->format('d-m-Y');
+                echo $tanggal;
+            }
+            // Free result set
+            mysqli_free_result($result);
+        } else{
+            echo "Tidak ada deadline yang ditemukan pada rentang waktu tersebut.";
+        }
+    }
+    return;
+}
+
+if (preg_match("/[Aa]pa/",$getMesg) || preg_match("/[Dd]eadline/",$getMesg)){
     //Filter N Waktu
     $sql = "";
     $waktu = False;
-    if(preg_match_all("/(0[1-9]|[1-2][0-9]|3[0-1])-(0[1-9]|1[0-2])-[0-9]{4}/",$getMesg,$arr_date)){
+    if(preg_match_all($regexDate,$getMesg,$arr_date)){
         //sort dulu tanggalnya supaya between di sql ga salah
         //Deadline Rentang waktu tertentu
         if(count($arr_date[0])>1){
@@ -106,17 +143,17 @@ if (preg_match("/[Aa]pa/",$getMesg) && preg_match("/[Dd]eadline/",$getMesg)){
     }
     
     //Filter Jenis
-    if (preg_match("/[Tt]ugas [Kk]ecil|[Tt]ucil/",$getMesg)){
+    if (preg_match($regexTucil,$getMesg)){
         $KataPenting = "Tucil";
-    }else if (preg_match("/[Tt]ugas [Bb]esar|[Tt]ubes/",$getMesg)){
+    }else if (preg_match($regexTubes,$getMesg)){
         $KataPenting = "Tubes";
-    }else if (preg_match("/[Pp]raktikum|[Pp]rak/",$getMesg)){
+    }else if (preg_match($regexPraktikum,$getMesg)){
         $KataPenting = "Praktikum";
-    }else if (preg_match("/[Kk]uis/",$getMesg)){
+    }else if (preg_match($regexKuis,$getMesg)){
         $KataPenting = "Kuis";
-    }else if (preg_match("/[Uu]jian [Tt]engah [Ss]emester|[Uu][Tt][Ss]/",$getMesg)){
+    }else if (preg_match($regexUTS,$getMesg)){
         $KataPenting = "UTS";
-    }else if (preg_match("/[Uu]jian [Aa]khir [Ss]emester|[Uu][Aa][Ss]/",$getMesg)){
+    }else if (preg_match($regexUAS,$getMesg)){
         $KataPenting = "UAS";
     }else{
         $KataPenting = "NULL";
@@ -139,11 +176,11 @@ if (preg_match("/[Aa]pa/",$getMesg) && preg_match("/[Dd]eadline/",$getMesg)){
             echo "<table class='items'>";
             echo "<tr>";
             echo "<th>ID</th>";
-                    echo "<th>Tanggal</th>";
-                    echo "<th>Matkul</th>";
-                    echo "<th>Jenis</th>";
-                    echo "<th>Topik</th>";
-                echo "</tr>";
+            echo "<th>Tanggal</th>";
+            echo "<th>Matkul</th>";
+            echo "<th>Jenis</th>";
+            echo "<th>Topik</th>";
+            echo "</tr>";
             while($row = mysqli_fetch_array($result)){
                 echo "<tr>";
                     $tanggal = DateTime::createFromFormat('Y-m-d', $row['date'])->format('d-m-Y');
@@ -182,27 +219,31 @@ if (preg_match("/[Rr]eset|[Hh]apus [Ss]emua|[Dd]elete [Aa]ll/",$getMesg)){
     return;
 }
 
-//Insert Deadline baru
-if (preg_match_all("/(0[1-9]|[1-2][0-9]|3[0-1])-(0[1-9]|1[0-2])-[0-9]{4}/",$getMesg,$arr_date) && !preg_match("/[Aa]pa/",$getMesg)) {
+
+//Insert/Ubah Deadline
+if (preg_match_all($regexDate,$getMesg,$arr_date) && !preg_match("/[Aa]pa/",$getMesg)) {
     for ($i = 0; $i < count($arr_date[0]); $i++){
         $arr_ymd = DateTime::createFromFormat('d-m-Y', $arr_date[0][$i])->format('Y-m-d');
         $date = sprintf($arr_ymd);
         echo $date."\n";
     }
-    if (preg_match_all("/[A-Z]{2}[0-9]{4}/",$getMesg,$ArrMatkul)){
+    /*if (preg_match("/[Uu]bah|[Uu]ndur|[Mm]aju|[Gg]anti/"),$getMesg){
+        preg_match_all("/[Tt]ask[0-9][0-9]|[T/")
+    }
+    else*/ if (preg_match_all($regexMatkul,$getMesg,$ArrMatkul)){
         $Matkul = sprintf($ArrMatkul[0][0]);
         echo $Matkul."\n";
-        if (preg_match("/[Tt]ugas [Kk]ecil|[Tt]ucil/",$getMesg)){
+        if (preg_match($regexTucil,$getMesg)){
             $KataPenting = "Tucil";
-        }else if (preg_match("/[Tt]ugas [Bb]esar|[Tt]ubes/",$getMesg)){
+        }else if (preg_match($regexTubes,$getMesg)){
             $KataPenting = "Tubes";
-        }else if (preg_match("/[Pp]raktikum|[Pp]rak/",$getMesg)){
+        }else if (preg_match($regexPraktikum,$getMesg)){
             $KataPenting = "Praktikum";
-        }else if (preg_match("/[Kk]uis/",$getMesg)){
+        }else if (preg_match($regexKuis,$getMesg)){
             $KataPenting = "Kuis";
-        }else if (preg_match("/[Uu]jian [Tt]engah [Ss]emester|[Uu][Tt][Ss]/",$getMesg)){
+        }else if (preg_match($regexUTS,$getMesg)){
             $KataPenting = "UTS";
-        }else if (preg_match("/[Uu]jian [Aa]khir [Ss]emester|[Uu][Aa][Ss]/",$getMesg)){
+        }else if (preg_match($regexUAS,$getMesg)){
             $KataPenting = "UAS";
         }
         else{
