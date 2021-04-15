@@ -203,7 +203,7 @@ if (preg_match("/[Aa]pa/",$getMesg) || preg_match("/[Dd]eadline/",$getMesg)){
         //Deadline Minggu ini
         $sql = "SELECT * FROM tabel WHERE date BETWEEN CURDATE() AND CURDATE() + INTERVAL 1 WEEK";
         $waktu = True;
-    }else if(preg_match_all("/[Mm]inggu [Dd]epan/",$getMesg, $tampung)){
+    }else if(preg_match_all("/[Mm]inggu [Dd]epan|[Mm]ingdep/",$getMesg, $tampung)){
         //Deadline Minggu Depan
         $sql = "SELECT * FROM tabel WHERE date BETWEEN CURDATE() + INTERVAL 1 WEEK AND CURDATE() + INTERVAL 2 WEEK";
         $waktu = True;
