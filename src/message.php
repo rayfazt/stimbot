@@ -21,6 +21,16 @@ function date_sort($a, $b) {
     return strtotime($a) - strtotime($b);
 }
 
+function rapihinID(){
+    $sql = "ALTER TABLE tabel DROP id;";
+    $sql .= "ALTER TABLE  `tabel` ADD `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST";
+    if (mysqli_multi_query($conn, $sql)) {
+        echo "Deadline berhasil disetting ulang";
+    } else {
+        echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+    }
+}
+
 if (preg_match("/HELP|help|Help|[Bb]agaimana/",$getMesg)){
     echo "[HELP/BANTUAN]";
     echo "<table class='items'>";
@@ -76,9 +86,66 @@ if (preg_match("/[Kk]apan/",$getMesg) && preg_match_all($regexMatkul,$getMesg,$A
             // Free result set
             mysqli_free_result($result);
         } else{
-            echo "Tidak ada deadline yang ditemukan pada rentang waktu tersebut.";
+            echo "Tidak ada deadline yang ditemukan pada waktu tersebut.";
         }
     }
+    return;
+}
+//Insert/Ubah Deadline
+if (preg_match_all($regexDate,$getMesg,$arr_date) && !preg_match("/[Aa]pa/",$getMesg)) {
+    for ($i = 0; $i < count($arr_date[0]); $i++){
+        $arr_ymd = DateTime::createFromFormat('d-m-Y', $arr_date[0][$i])->format('Y-m-d');
+        $date = sprintf($arr_ymd);
+        echo $date."\n";
+    }
+    /*if (preg_match("/[Uu]bah|[Uu]ndur|[Mm]aju|[Gg]anti/"),$getMesg){
+        preg_match_all("/[Tt]ask[0-9][0-9]|[T/")
+    }
+    else*/ if (preg_match_all($regexMatkul,$getMesg,$ArrMatkul)){
+        $Matkul = sprintf($ArrMatkul[0][0]);
+        echo $Matkul."\n";
+        if (preg_match($regexTucil,$getMesg)){
+            $KataPenting = "Tucil";
+        }else if (preg_match($regexTubes,$getMesg)){
+            $KataPenting = "Tubes";
+        }else if (preg_match($regexPraktikum,$getMesg)){
+            $KataPenting = "Praktikum";
+        }else if (preg_match($regexKuis,$getMesg)){
+            $KataPenting = "Kuis";
+        }else if (preg_match($regexUTS,$getMesg)){
+            $KataPenting = "UTS";
+        }else if (preg_match($regexUAS,$getMesg)){
+            $KataPenting = "UAS";
+        }
+        else{
+            echo " - Tugas atau praktikum? Cek masukkan kamu ya :)";
+            $KataPenting = "NULL";
+            return;
+        }
+        echo $KataPenting."\n";
+        if(preg_match_all("/topik(.*)/", $getMesg,$ArrTopik)){
+            $Topik = sprintf($ArrTopik[1][0]);
+            echo $Topik."\n";
+        }else{
+            $Topik = "NULL";
+        }
+        
+        $sql = "INSERT INTO tabel (`date`, `matkul`, `katapenting`, `topik`) VALUES ('$date', '$Matkul', '$KataPenting','$Topik')";
+        
+        if (mysqli_query($conn, $sql)) {
+            echo "<br> Deadline berhasil dimasukkan";
+        } else {
+            echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+        }
+    }else{
+        echo "Maaf, aku gatau kode matkulnya? Cek masukkan kamu ya :)";
+    }
+    return;
+}
+
+//Rapihin 
+if (preg_match("/[Rr]eset|[Hh]apus [Ss]emua|[Dd]elete [Aa]ll/",$getMesg)){
+    rapihinID();
     return;
 }
 
@@ -130,7 +197,7 @@ if (preg_match("/[Aa]pa/",$getMesg) || preg_match("/[Dd]eadline/",$getMesg)){
         $waktu = True;
     }else if(preg_match_all("/[Bb]esok/",$getMesg, $tampung)){
         //Deadline Besok
-        $sql = "SELECT * FROM tabel WHERE date = CURDATE() AND CURDATE() + INTERVAL 1 DAY";
+        $sql = "SELECT * FROM tabel WHERE date = CURDATE() + INTERVAL 1 DAY";
         $waktu = True;
     }else if(preg_match_all("/[Mm]inggu [Ii]ni/",$getMesg, $tampung)){
         //Deadline Minggu ini
@@ -158,7 +225,7 @@ if (preg_match("/[Aa]pa/",$getMesg) || preg_match("/[Dd]eadline/",$getMesg)){
     }else{
         $KataPenting = "NULL";
     }
-
+    
     if($waktu && $KataPenting!="NULL"){
         $sql .= " AND katapenting LIKE '%$KataPenting%'";
     }else if (!$waktu){
@@ -183,17 +250,17 @@ if (preg_match("/[Aa]pa/",$getMesg) || preg_match("/[Dd]eadline/",$getMesg)){
             echo "</tr>";
             while($row = mysqli_fetch_array($result)){
                 echo "<tr>";
-                    $tanggal = DateTime::createFromFormat('Y-m-d', $row['date'])->format('d-m-Y');
-                    echo "<td>" . $row['id'];
-                    echo "<td style='font-size:xx-small;font-weight:700'>" . $tanggal;
-                    echo "<td>" . $row['matkul'];
-                    echo "<td>" . $row['katapenting'];
-                    if ($row['topik']!="NULL"){
+                $tanggal = DateTime::createFromFormat('Y-m-d', $row['date'])->format('d-m-Y');
+                echo "<td>" . $row['id'];
+                echo "<td style='font-size:xx-small;font-weight:700'>" . $tanggal;
+                echo "<td>" . $row['matkul'];
+                echo "<td>" . $row['katapenting'];
+                if ($row['topik']!="NULL"){
                         echo "<td>" . $row['topik'] . "</td>";
                     }else{
                         echo "<td>-</td>";
                     }
-                echo "</tr>";
+                    echo "</tr>";
             }
             echo "</table>";
             // Free result set
@@ -207,70 +274,8 @@ if (preg_match("/[Aa]pa/",$getMesg) || preg_match("/[Dd]eadline/",$getMesg)){
     return;
 }
 
-//Rapihin ID
-if (preg_match("/[Rr]eset|[Hh]apus [Ss]emua|[Dd]elete [Aa]ll/",$getMesg)){
-    $sql = "ALTER TABLE tabel DROP id;";
-    $sql .= "ALTER TABLE  `tabel` ADD `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST";
-    if (mysqli_multi_query($conn, $sql)) {
-        echo "Deadline berhasil disetting ulang";
-    } else {
-        echo "Error: " . $sql . "<br>" . mysqli_error($conn);
-    }
-    return;
-}
 
 
-//Insert/Ubah Deadline
-if (preg_match_all($regexDate,$getMesg,$arr_date) && !preg_match("/[Aa]pa/",$getMesg)) {
-    for ($i = 0; $i < count($arr_date[0]); $i++){
-        $arr_ymd = DateTime::createFromFormat('d-m-Y', $arr_date[0][$i])->format('Y-m-d');
-        $date = sprintf($arr_ymd);
-        echo $date."\n";
-    }
-    /*if (preg_match("/[Uu]bah|[Uu]ndur|[Mm]aju|[Gg]anti/"),$getMesg){
-        preg_match_all("/[Tt]ask[0-9][0-9]|[T/")
-    }
-    else*/ if (preg_match_all($regexMatkul,$getMesg,$ArrMatkul)){
-        $Matkul = sprintf($ArrMatkul[0][0]);
-        echo $Matkul."\n";
-        if (preg_match($regexTucil,$getMesg)){
-            $KataPenting = "Tucil";
-        }else if (preg_match($regexTubes,$getMesg)){
-            $KataPenting = "Tubes";
-        }else if (preg_match($regexPraktikum,$getMesg)){
-            $KataPenting = "Praktikum";
-        }else if (preg_match($regexKuis,$getMesg)){
-            $KataPenting = "Kuis";
-        }else if (preg_match($regexUTS,$getMesg)){
-            $KataPenting = "UTS";
-        }else if (preg_match($regexUAS,$getMesg)){
-            $KataPenting = "UAS";
-        }
-        else{
-            echo " - Tugas atau praktikum? Cek masukkan kamu ya :)";
-            $KataPenting = "NULL";
-            return;
-        }
-        echo $KataPenting."\n";
-        if(preg_match_all("/topik(.*)/", $getMesg,$ArrTopik)){
-            $Topik = sprintf($ArrTopik[1][0]);
-            echo $Topik."\n";
-        }else{
-            $Topik = "NULL";
-        }
-
-        $sql = "INSERT INTO tabel (`date`, `matkul`, `katapenting`, `topik`) VALUES ('$date', '$Matkul', '$KataPenting','$Topik')";
-
-        if (mysqli_query($conn, $sql)) {
-            echo "<br> Deadline berhasil dimasukkan";
-        } else {
-            echo "Error: " . $sql . "<br>" . mysqli_error($conn);
-        }
-    }else{
-        echo "Maaf, aku gatau kode matkulnya? Cek masukkan kamu ya :)";
-    }
-    return;
-}
 
 echo "Maaf, kami tidak mengerti maksud kamu :(";
 
