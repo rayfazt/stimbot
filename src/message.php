@@ -129,7 +129,37 @@ if (preg_match_all($regexDate,$getMesg,$arr_date) && !preg_match("/[Aa]pa/",$get
         $date = sprintf($arr_ymd);
         //echo $date."\n";
     }
-    /*if (preg_match("/[Uu]bah|[Uu]ndur|[Mm]aju|[Gg]anti/"),$getMesg){
+    // Ubah Deadline
+    if (preg_match("/[Uu]bah|[Uu]ndur|[Mm]aju/", $getMesg)){
+        if (preg_match_all("/ ([1-9]{1}|[1-9]{1}[0-9]{1}|[1-9]{1}[0-9]{2}) /", $getMesg, $IdArr)){
+            $Id = sprintf($IdArr[0][0]);
+            $sql = "UPDATE `tabel` SET `date` = '$date' WHERE `tabel`.`id` = $Id";
+            if (mysqli_query($conn, $sql)){
+                $sql2 = "SELECT * FROM `tabel` WHERE `tabel`.`id` = $Id";
+                if($result2 = mysqli_query($conn, $sql2)){
+                    $row = mysqli_fetch_array($result2);
+                    $tanggal = DateTime::createFromFormat('Y-m-d', $row['date'])->format('d-m-Y');
+                    echo "Deadline " . $row['katapenting'] ." ". $row['matkul'] ." ";
+                    if($row['topik'] != "NULL"){
+                        echo "dengan topik " . $row['topik'] ." ";
+                    }
+                    echo "berhasil diubah menjadi tanggal " . $tanggal;
+                    
+                    
+                    // Free result set
+                    mysqli_free_result($result2);
+                    return;
+                }
+            }
+            echo "Indeks tidak ada.";
+            return;
+        }
+        echo "Masukkan indeks deadline yang akan diubah.";
+        return;
+    }
+    //Insert Deadline
+    else{
+            /*if (preg_match("/[Uu]bah|[Uu]ndur|[Mm]aju|[Gg]anti/"),$getMesg){
         preg_match_all("/[Tt]ask[0-9][0-9]|[T/")
     }
     else*/ if (preg_match_all($regexMatkul,$getMesg,$ArrMatkul)){
@@ -183,12 +213,14 @@ if (preg_match_all($regexDate,$getMesg,$arr_date) && !preg_match("/[Aa]pa/",$get
                 mysqli_free_result($result2);
             }
         } else {
-            echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+            echo "Error: " . $sql2 . "<br>" . mysqli_error($conn);
         }
     }else{
         echo "Maaf, aku gatau kode matkulnya? Cek masukkan kamu ya :)";
     }
     return;
+    }
+
 }
 
 // mark tugas as complete (pake ID)
