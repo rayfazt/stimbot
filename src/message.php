@@ -1,11 +1,15 @@
 <?php
+include('spelling.php');
+$words  = array('deadline', 'ujian', 'tengah', 'semester', 'akhir', 'topik', 'praktikum', 'kuis', 'tubes'
+, 'tucil', 'besar', 'kecil', 'tugas', 'sampai', 'tanggal','matkul','mata','kuliah', 'UTS', 'UAS', 'uts', 'uas');
+//$input = "Min, ada tubek IF2211 di tanggal 20-04-2020";
 // connecting to database
 $conn = mysqli_connect("sql6.freesqldatabase.com", "sql6405141", "BkxHy17U62","sql6405141") or die("Database Error");
 if (mysqli_connect_errno()){
     echo "Failed to connect to MySQL: " . mysqli_connect_error();
 }
 // getting user message through ajax
-$getMesg = mysqli_real_escape_string($conn, $_POST['text']);
+$input = mysqli_real_escape_string($conn, $_POST['text']);
 $arr_date = array();
 $arr_ymd = array();
 $regexTucil = "/[Tt]ugas [Kk]ecil|[Tt]ucil/";
@@ -30,6 +34,17 @@ function rapihinID(){
         echo "Error: " . $sql . "<br>" . mysqli_error($conn);
     }
 }
+
+$bahanbaku = pembersihan($input, $words);
+//Cek pakai levethin dan KMP distance dulu!
+if($bahanbaku[1]){
+    $getMesg = $bahanbaku[0];
+}else{
+    $getMesg = $bahanbaku[0];
+    echo $getMesg;
+    return;
+}
+
 
 if (preg_match("/HELP|help|Help|[Bb]agaimana/",$getMesg)){
     echo "[HELP/BANTUAN]";
