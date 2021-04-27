@@ -1,7 +1,7 @@
 <?php
 include('spelling.php');
 $words  = array('deadline', 'ujian', 'tengah', 'semester', 'akhir', 'topik', 'praktikum', 'kuis', 'tubes'
-, 'tucil', 'besar', 'kecil', 'tugas', 'sampai', 'tanggal','matkul','mata','kuliah', 'UTS', 'UAS', 'uts', 'uas');
+, 'tucil', 'besar', 'kecil', 'tugas', 'sampai', 'tanggal','matkul','kuliah', 'UTS', 'UAS', 'uts', 'uas');
 //$input = "Min, ada tubek IF2211 di tanggal 20-04-2020";
 // connecting to database
 $conn = mysqli_connect("sql6.freesqldatabase.com", "sql6405141", "BkxHy17U62","sql6405141") or die("Database Error");
@@ -25,11 +25,11 @@ function date_sort($a, $b) {
     return strtotime($a) - strtotime($b);
 }
 
-function rapihinID(){
+function rapihinID($conn){
     $sql = "ALTER TABLE tabel DROP id;";
     $sql .= "ALTER TABLE  `tabel` ADD `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST";
     if (mysqli_multi_query($conn, $sql)) {
-        echo "Deadline berhasil disetting ulang";
+        echo "Deadline berhasil disetting ulang\n";
     } else {
         echo "Error: " . $sql . "<br>" . mysqli_error($conn);
     }
@@ -61,10 +61,26 @@ if (preg_match("/HELP|help|Help|[Bb]agaimana/",$getMesg)){
     
     echo "<tr>";
     echo "<td style='font-size:small;font-weight:700'>" . "Show Jadwal";
-    echo "<td>" . "Apa Deadline [Waktu]";
+    echo "<td>" . "Apa Deadline [DD-MM-YYYY]";
+    echo "</tr>";
+
+    echo "<tr>";
+    echo "<td style='font-size:small;font-weight:700'>" . "Update Jadwal";
+    echo "<td>" . "Ubah Deadline Task (nomor) [DD-MM-YYYY]";
     echo "</tr>";
     
+    echo "<tr>";
+    echo "<td style='font-size:small;font-weight:700'>" . "Tandai Task Selesai";
+    echo "<td>" . "Selesai/Done/Kelar Task (nomor)";
+    echo "</tr>";
+
     echo "</table>";
+    return;
+}
+
+if (preg_match("/(?i)(?<= |^)kata penting(?= |$)/",$getMesg)) {
+    echo "[KATA PENTING]<br>";
+    echo "Tucil, Tubes, Kuis, UTS, UAS, Praktikum";
     return;
 }
 
@@ -167,7 +183,7 @@ if (preg_match_all($regexDate,$getMesg,$arr_date) && !preg_match("/[Aa]pa/",$get
                 mysqli_free_result($result2);
             }
         } else {
-            echo "Error: " . $sql2 . "<br>" . mysqli_error($conn);
+            echo "Error: " . $sql . "<br>" . mysqli_error($conn);
         }
     }else{
         echo "Maaf, aku gatau kode matkulnya? Cek masukkan kamu ya :)";
@@ -175,9 +191,63 @@ if (preg_match_all($regexDate,$getMesg,$arr_date) && !preg_match("/[Aa]pa/",$get
     return;
 }
 
+// mark tugas as complete (pake ID)
+if (preg_match("/[Ss][Ee][Ll][Ee][Ss][Aa][Ii]|[Kk][Ee][Ll][Aa][Rr]|[Dd][Oo][Nn][Ee]/", $getMesg)) {
+    if (preg_match_all("/[1-9]\d*/", $getMesg, $ArrId)) {
+        $Id = sprintf($ArrId[0][0]);
+        // echo $Id."\n";
+    }
+    else {
+        return;
+    }
+
+    $sql = "SELECT * FROM tabel WHERE id = '$Id'";
+    if (mysqli_query($conn, $sql)) {
+        $result = mysqli_query($conn, $sql);
+        if (mysqli_num_rows($result) > 0) {
+            $row = mysqli_fetch_array($result);
+            echo $row['katapenting'];
+            echo "\n";
+            if ($row['topik'] != "NULL") {
+                echo $row['topik'];
+                echo "\n";
+            }
+            echo $row['matkul'];
+            echo "\n";
+            echo " telah diselesaikan. Good job!<br>";
+        }
+        else {
+            echo "Task tidak ditemukan";
+        }
+
+        $sql2 = "DELETE FROM tabel WHERE id = '$Id'";
+        if (mysqli_query($conn, $sql2)) {
+            $sql3 = "SELECT * FROM tabel WHERE id = '$Id'";
+            if (mysqli_query($conn, $sql3)) {
+                $result2 = mysqli_query($conn, $sql3);
+                if (mysqli_num_rows($result2) == 0) {
+                    rapihinID($conn);
+                }
+            }
+        }
+        else {
+            echo "delete gagal\n";
+        }
+
+        mysqli_free_result($result);
+        mysqli_free_result($result2);
+    }
+    else {
+        echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+        return;
+    }
+    
+    return;
+}  
+
 //Rapihin 
 if (preg_match("/[Rr]eset|[Hh]apus [Ss]emua|[Dd]elete [Aa]ll/",$getMesg)){
-    rapihinID();
+    rapihinID($conn);
     return;
 }
 
