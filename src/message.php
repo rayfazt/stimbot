@@ -96,14 +96,14 @@ if (preg_match_all($regexDate,$getMesg,$arr_date) && !preg_match("/[Aa]pa/",$get
     for ($i = 0; $i < count($arr_date[0]); $i++){
         $arr_ymd = DateTime::createFromFormat('d-m-Y', $arr_date[0][$i])->format('Y-m-d');
         $date = sprintf($arr_ymd);
-        echo $date."\n";
+        //echo $date."\n";
     }
     /*if (preg_match("/[Uu]bah|[Uu]ndur|[Mm]aju|[Gg]anti/"),$getMesg){
         preg_match_all("/[Tt]ask[0-9][0-9]|[T/")
     }
     else*/ if (preg_match_all($regexMatkul,$getMesg,$ArrMatkul)){
         $Matkul = sprintf($ArrMatkul[0][0]);
-        echo $Matkul."\n";
+        //echo $Matkul."\n";
         if (preg_match($regexTucil,$getMesg)){
             $KataPenting = "Tucil";
         }else if (preg_match($regexTubes,$getMesg)){
@@ -122,10 +122,10 @@ if (preg_match_all($regexDate,$getMesg,$arr_date) && !preg_match("/[Aa]pa/",$get
             $KataPenting = "NULL";
             return;
         }
-        echo $KataPenting."\n";
+        //echo $KataPenting."\n";
         if(preg_match_all("/topik(.*)/", $getMesg,$ArrTopik)){
             $Topik = sprintf($ArrTopik[1][0]);
-            echo $Topik."\n";
+            //echo $Topik."\n";
         }else{
             $Topik = "NULL";
         }
@@ -133,9 +133,26 @@ if (preg_match_all($regexDate,$getMesg,$arr_date) && !preg_match("/[Aa]pa/",$get
         $sql = "INSERT INTO tabel (`date`, `matkul`, `katapenting`, `topik`) VALUES ('$date', '$Matkul', '$KataPenting','$Topik')";
         
         if (mysqli_query($conn, $sql)) {
-            echo "<br> Deadline berhasil dimasukkan";
+            echo "[TASK BERHASIL DICATAT]\n";
+            $sql2 = "SELECT * from tabel WHERE id = (SELECT LAST_INSERT_ID())";
+            if($result2 = mysqli_query($conn, $sql2)){
+                if(mysqli_num_rows($result2) > 0){
+                    $row = mysqli_fetch_array($result2);
+                    $tanggal = DateTime::createFromFormat('Y-m-d', $row['date'])->format('d-m-Y');
+                    echo "(ID :" ;
+                    echo $row['id'] . ") - ";
+                    echo $tanggal . " - ";
+                    echo $row['matkul'] . " - ";
+                    echo $row['katapenting'];
+                    if ($row['topik']!="NULL"){
+                        echo " - " . $row['topik'];
+                    }
+                }
+                // Free result set
+                mysqli_free_result($result2);
+            }
         } else {
-            echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+            echo "Error: " . $sql2 . "<br>" . mysqli_error($conn);
         }
     }else{
         echo "Maaf, aku gatau kode matkulnya? Cek masukkan kamu ya :)";
