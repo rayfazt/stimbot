@@ -9,12 +9,11 @@ Program ini adalah sebuah chatbot sederhana yang berfungsi untuk membantu mengin
 
 ## Instalasi & Cara Penggunaan
 * Chatbot dapat diakses melalui tautan https://tubes-stimbot.herokuapp.com/
-* Pengujian di local dapat dilakukan dengan cara <TODO>
-* Daftar perintah yang dapat dikenali bot antara lain: <TODO>
+* Pengujian di local dapat dilakukan menggunakan XAMPP. Tutorial penggunaannya dapat dilihat di [tautan ini](https://www.techwalla.com/articles/how-to-run-a-php-file-in-xampp).
+* Daftar perintah yang dikenali bot dapat dilihat menggunakan command "help". Daftar kata penting dapat dilihat dengan command "kata penting".
 
 ## Author
+Kelompok Stimbot &copy; 2021
 * Rayhan Alghifari Fauzta (13519039)
 * Muhammad Fikri Naufal (13519158)
 * Leonard Matheus (13519215)
-
-&copy; 2021
