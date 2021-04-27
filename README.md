@@ -1,2 +1,2 @@
 # stimbot
-tugas besar 3 stima
+https://tubes-stimbot.herokuapp.com/
