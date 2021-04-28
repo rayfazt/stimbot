@@ -45,6 +45,11 @@ if($bahanbaku[1]){
     return;
 }
 
+if (preg_match("/[Nn]ikah/")){
+    echo "Mungkin Suatu hari :)";
+    return;
+}
+
 if (preg_match("/[Kk]erang [Aa]jaib/")){
     echo "Tidak ada!";
     return;
