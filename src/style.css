@@ -68,16 +68,7 @@ html,body{
     justify-content: flex-end;
     margin: 13px 0;
 }
-.wrapper .form .inbox .icon{
-    height: 40px;
-    width: 40px;
-    color: #fff;
-    text-align: center;
-    line-height: 40px;
-    border-radius: 50%;
-    font-size: 18px;
-    background: #007bff;
-}
+
 .wrapper .form .inbox .msg-header{
     max-width: 53%;
     margin-left: 10px;

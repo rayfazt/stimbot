@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+    <link rel="stylesheet" href="font-awesome-animation.min.css">
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 </head>
 <body>
@@ -12,9 +13,10 @@
         <div class="title">Stimbot</div>
         <div class="form">
             <div class="bot-inbox inbox">
-                <div class="icon">
-                    <i class="fas fa-user"></i>
-                </div>
+                <!--<div class="icon">
+                <--i class="fas fa-user"></i>
+                </div>-->
+                <img src="img/stimbot.gif" width="53" height="49"/> 
                 <div class="msg-header">
                     <p>Selamat datang di Stimbot! Ketik help untuk petunjuk bot!</p>
                 </div>
@@ -42,7 +44,7 @@
                     type: 'POST',
                     data: 'text='+$value,
                     success: function(result){
-                        $replay = '<div class="bot-inbox inbox"><div class="icon"><i class="fas fa-user"></i></div><div class="msg-header"><p>'+ result +'</p></div></div>';
+                        $replay = '<div class="bot-inbox inbox"><div class="icon"><img src="img/stimbot.gif" width="53" height="49"/></i></div><div class="msg-header"><p>'+ result +'</p></div></div>';
                         $(".form").append($replay);
                         // when chat goes down the scroll bar automatically comes to the bottom
                         $(".form").scrollTop($(".form")[0].scrollHeight);

@@ -1,4 +1,5 @@
 <?php
+//include('kmp.php');
 // Konversi UTF-8 string ke single-byte string supaya pemrosesan lebih cepat
 function utf8_to_extended_ascii($str, &$map)
 {

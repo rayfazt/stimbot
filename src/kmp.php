@@ -84,5 +84,4 @@ function computeLPSArray($pat, $M, &$lps)
     $pat = "ABABCABAB";
     KMPSearch($pat, $txt);
       
-// This code is contributed by chandan_jnu
 ?>
