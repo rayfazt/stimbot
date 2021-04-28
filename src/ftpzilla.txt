@@ -1,0 +1,4 @@
+hostname : ftpupload.net
+username: epiz_28493316
+pass: w2rOuKvRee
+port : 21

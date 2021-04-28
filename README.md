@@ -13,7 +13,7 @@ Program ini adalah sebuah chatbot sederhana yang berfungsi untuk membantu mengin
 * [XAMPP](https://www.apachefriends.org/index.html) jika ingin menjalankan program di server local.
 
 ## Instalasi & Cara Penggunaan
-* Chatbot dapat diakses melalui tautan https://tubes-stimbot.herokuapp.com/
+* Chatbot dapat diakses melalui tautan https://tubes-stimbot.herokuapp.com/ atau http://tubes-stimbot.infinityfreeapp.com/
 * Pengujian di local dapat dilakukan menggunakan XAMPP. Tutorial penggunaannya dapat dilihat di [tautan ini](https://www.techwalla.com/articles/how-to-run-a-php-file-in-xampp).
 * Daftar perintah yang dikenali bot dapat dilihat menggunakan command "help". Daftar kata penting dapat dilihat dengan command "kata penting".
 
