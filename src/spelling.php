@@ -1,5 +1,5 @@
 <?php
-//include('kmp.php');
+include('kmp.php');
 // Konversi UTF-8 string ke single-byte string supaya pemrosesan lebih cepat
 function utf8_to_extended_ascii($str, &$map)
 {
@@ -71,7 +71,8 @@ function pembersihan($input,$words){
         //hasil[0] = kata terdekatnya
         //hasil[1] = nilai lev terpendeknya
         $hasil = autochecker($kata, $words);
-        if ($kata!=$hasil[0] && ($hasil[1]/strlen($hasil[0]))<0.34){
+        //Kemiripan string diatas 75%
+        if ($kata!=$hasil[0] && ($hasil[1]/strlen($hasil[0]))<=0.25){
             $arrayhasil += array($kata => $hasil[0]);
             $perubahan += 1;
         }

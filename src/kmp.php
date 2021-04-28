@@ -26,18 +26,20 @@ function KMPSearch($pat, $txt)
         }
   
         if ($j == $M) {
-            printf("Found pattern at index ".($i - $j));
+            $hasil = "Found pattern at index ".($i - $j);
             $j = $lps[$j - 1];
+            return $hasil;
         }
   
         // mismatch after j matches
         else if ($i < $N && $pat[$j] != $txt[$i]) {
             // Do not match lps[0..lps[j-1]] characters,
             // they will match anyway
-            if ($j != 0)
+            if ($j != 0){
                 $j = $lps[$j - 1];
-            else
+            }else{
                 $i = $i + 1;
+            }
         }
     }
 }
@@ -80,8 +82,8 @@ function computeLPSArray($pat, $M, &$lps)
   
 // Driver program to test above function
   
-    $txt = "ABABDABACDABABCABAB";
-    $pat = "ABABCABAB";
-    KMPSearch($pat, $txt);
+    $txt = "menghapus";
+    $pat = "hapus";
+    echo KMPSearch($pat, $txt);
       
 ?>
