@@ -45,12 +45,12 @@ if($bahanbaku[1]){
     return;
 }
 
-if (preg_match("/[Nn]ikah/")){
+if (preg_match("/[Nn]ikah/",$getMesg)){
     echo "Mungkin Suatu hari :)";
     return;
 }
 
-if (preg_match("/[Kk]erang [Aa]jaib/")){
+if (preg_match("/[Kk]erang [Aa]jaib/",$getMesg)){
     echo "Tidak ada!";
     return;
 }
