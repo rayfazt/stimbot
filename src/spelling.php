@@ -1,5 +1,5 @@
 <?php
-//include('kmp.php');
+include('levensthein.php');
 // Konversi UTF-8 string ke single-byte string supaya pemrosesan lebih cepat
 function utf8_to_extended_ascii($str, &$map)
 {
@@ -24,8 +24,9 @@ function levenshtein_utf8($s1, $s2)
     $charMap = array();
     $s1 = utf8_to_extended_ascii($s1, $charMap);
     $s2 = utf8_to_extended_ascii($s2, $charMap);
-   
-    return levenshtein($s1, $s2);
+    
+    //Gunakan fungsi dari file sebelah
+    return levdistance($s1, $s2);
 }
 
 function autochecker($input, $words){
