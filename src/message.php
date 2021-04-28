@@ -45,6 +45,10 @@ if($bahanbaku[1]){
     return;
 }
 
+if (preg_match("/[Kk]erang [Aa]jaib/")){
+    echo "Tidak ada!";
+    return;
+}
 
 if (preg_match("/HELP|help|Help|[Bb]agaimana/",$getMesg)){
     echo "[HELP/BANTUAN]";
