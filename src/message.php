@@ -222,6 +222,8 @@ if (preg_match_all($regexDate,$getMesg,$arr_date) && !preg_match("/[Aa]pa/",$get
         echo "Maaf, aku gatau kode matkulnya? Cek masukkan kamu ya :)";
         return;
     }
+
+    return;
 }
 
 // mark tugas as complete (pake ID)
