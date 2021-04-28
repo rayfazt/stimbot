@@ -127,10 +127,9 @@ if (preg_match_all($regexDate,$getMesg,$arr_date) && !preg_match("/[Aa]pa/",$get
     for ($i = 0; $i < count($arr_date[0]); $i++){
         $arr_ymd = DateTime::createFromFormat('d-m-Y', $arr_date[0][$i])->format('Y-m-d');
         $date = sprintf($arr_ymd);
-        //echo $date."\n";
     }
     // Ubah Deadline
-    if (preg_match("/[Uu]bah|[Uu]ndur|[Mm]aju/", $getMesg)){
+    if (preg_match("/[Uu]bah|[Uu]ndur|[Mm]aju|[Uu]pdate/", $getMesg)){
         if (preg_match_all("/ ([1-9]{1}|[1-9]{1}[0-9]{1}|[1-9]{1}[0-9]{2}) /", $getMesg, $IdArr)){
             $Id = sprintf($IdArr[0][0]);
             $sql = "UPDATE `tabel` SET `date` = '$date' WHERE `tabel`.`id` = $Id";
@@ -145,7 +144,6 @@ if (preg_match_all($regexDate,$getMesg,$arr_date) && !preg_match("/[Aa]pa/",$get
                     }
                     echo "berhasil diubah menjadi tanggal " . $tanggal;
                     
-                    
                     // Free result set
                     mysqli_free_result($result2);
                     return;
@@ -158,13 +156,10 @@ if (preg_match_all($regexDate,$getMesg,$arr_date) && !preg_match("/[Aa]pa/",$get
         return;
     }
     //Insert Deadline
-    else{
-            /*if (preg_match("/[Uu]bah|[Uu]ndur|[Mm]aju|[Gg]anti/"),$getMesg){
-        preg_match_all("/[Tt]ask[0-9][0-9]|[T/")
-    }
-    else*/ if (preg_match_all($regexMatkul,$getMesg,$ArrMatkul)){
+        //Tampung matkul dulu
+    if (preg_match_all($regexMatkul,$getMesg,$ArrMatkul)){
         $Matkul = sprintf($ArrMatkul[0][0]);
-        //echo $Matkul."\n";
+        //Cocokkan kata pentingnya
         if (preg_match($regexTucil,$getMesg)){
             $KataPenting = "Tucil";
         }else if (preg_match($regexTubes,$getMesg)){
@@ -214,22 +209,22 @@ if (preg_match_all($regexDate,$getMesg,$arr_date) && !preg_match("/[Aa]pa/",$get
             }
         } else {
             echo "Error: " . $sql2 . "<br>" . mysqli_error($conn);
+            return;
         }
     }else{
         echo "Maaf, aku gatau kode matkulnya? Cek masukkan kamu ya :)";
+        return;
     }
-    return;
-    }
-
 }
 
 // mark tugas as complete (pake ID)
-if (preg_match("/[Ss][Ee][Ll][Ee][Ss][Aa][Ii]|[Kk][Ee][Ll][Aa][Rr]|[Dd][Oo][Nn][Ee]/", $getMesg)) {
+if (preg_match("/[Ss][Ee][Ll][Ee][Ss][Aa][Ii]|[Kk][Ee][Ll][Aa][Rr]|[Dd][Oo][Nn][Ee]|[Hh][Aa][Pp][Uu][Ss]/", $getMesg)) {
     if (preg_match_all("/[1-9]\d*/", $getMesg, $ArrId)) {
         $Id = sprintf($ArrId[0][0]);
         // echo $Id."\n";
     }
     else {
+        echo "Selesai apa? Masukkan Task ke berapanya ya!";
         return;
     }
 
@@ -276,12 +271,6 @@ if (preg_match("/[Ss][Ee][Ll][Ee][Ss][Aa][Ii]|[Kk][Ee][Ll][Aa][Rr]|[Dd][Oo][Nn][
     
     return;
 }  
-
-//Rapihin 
-if (preg_match("/[Rr]eset|[Hh]apus [Ss]emua|[Dd]elete [Aa]ll/",$getMesg)){
-    rapihinID($conn);
-    return;
-}
 
 if (preg_match("/[Aa]pa/",$getMesg) || preg_match("/[Dd]eadline/",$getMesg)){
     //Filter N Waktu
@@ -407,28 +396,6 @@ if (preg_match("/[Aa]pa/",$getMesg) || preg_match("/[Dd]eadline/",$getMesg)){
     }
     return;
 }
-
-
-
-
+//Kalau chatbotnya udah nyerah, ditampilkan pesan ini
 echo "Maaf, kami tidak mengerti maksud kamu :(";
-
-/*
-//checking user query to database query
-//$check_data = "SELECT replies FROM chatbot WHERE queries LIKE '%$getMesg%'";
-$check_data = "SELECT * FROM tabel WHERE arr_date = '$arr_ymd'";
-$run_query = mysqli_query($conn, $check_data) or die("Error");
-
-// if user query matched to database query we'll show the reply otherwise it go to else statement
-if(mysqli_num_rows($run_query) > 0){
-    //fetching replay from the database according to the user query
-    $fetch_data = mysqli_fetch_assoc($run_query);
-    //storing replay to a varible which we'll send to ajax
-    $replay = $fetch_data['replies'];
-    echo $replay;
-}else{
-    echo "Sorry can't be able to understand you!";
-}
-*/
-
 ?>

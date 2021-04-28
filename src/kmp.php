@@ -7,6 +7,7 @@
 // Prints occurrences of txt[] in pat[]
 function KMPSearch($pat, $txt)
 {
+    $ishasil = False;
     $M = strlen($pat);
     $N = strlen($txt);
   
@@ -26,9 +27,10 @@ function KMPSearch($pat, $txt)
         }
   
         if ($j == $M) {
-            $hasil = "Found pattern at index ".($i - $j);
+            //$hasil = "Found pattern at index ".($i - $j);
+            $ishasil = True;
             $j = $lps[$j - 1];
-            return $hasil;
+            return $ishasil;
         }
   
         // mismatch after j matches
@@ -42,6 +44,7 @@ function KMPSearch($pat, $txt)
             }
         }
     }
+    return $ishasil;
 }
   
 // Fills lps[] for given patttern pat[0..M-1]
@@ -79,11 +82,4 @@ function computeLPSArray($pat, $M, &$lps)
         }
     }
 }
-  
-// Driver program to test above function
-  
-    $txt = "menghapus";
-    $pat = "hapus";
-    echo KMPSearch($pat, $txt);
-      
 ?>

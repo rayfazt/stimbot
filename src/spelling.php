@@ -1,5 +1,5 @@
 <?php
-include('kmp.php');
+//include('kmp.php');
 // Konversi UTF-8 string ke single-byte string supaya pemrosesan lebih cepat
 function utf8_to_extended_ascii($str, &$map)
 {
@@ -38,6 +38,7 @@ function autochecker($input, $words){
         // calculate the distance between the input word,
         // and the current word
         $lev = levenshtein_utf8($input, $word);
+        
         //echo $input." dan ".$word." dengan lev = ".$lev."\n";
 
         // check for an exact match
@@ -50,6 +51,18 @@ function autochecker($input, $words){
             // break out of the loop; we've found an exact match
             break;
         }
+
+        /*$kmp = KMPSearch($input, $word);
+        // check for an exact match
+        if ($kmp) {
+
+            // closest word is this one (exact match)
+            $closest = $word;
+            $shortest = 0;
+
+            // break out of the loop; we've found an exact match
+            break;
+        }*/
 
         // if this distance is less than the next found shortest
         // distance, OR if a next shortest word has not yet been found
@@ -71,6 +84,7 @@ function pembersihan($input,$words){
         //hasil[0] = kata terdekatnya
         //hasil[1] = nilai lev terpendeknya
         $hasil = autochecker($kata, $words);
+        //print_r($hasil);
         //Kemiripan string diatas 75%
         if ($kata!=$hasil[0] && ($hasil[1]/strlen($hasil[0]))<=0.25){
             $arrayhasil += array($kata => $hasil[0]);
