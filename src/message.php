@@ -187,10 +187,8 @@ if (preg_match_all($regexDate,$getMesg,$arr_date) && !preg_match("/[Aa]pa/",$get
             $KataPenting = "NULL";
             return;
         }
-        //echo $KataPenting."\n";
         if(preg_match_all("/topik(.*)/", $getMesg,$ArrTopik)){
             $Topik = sprintf($ArrTopik[1][0]);
-            //echo $Topik."\n";
         }else{
             $Topik = "NULL";
         }
@@ -230,7 +228,6 @@ if (preg_match_all($regexDate,$getMesg,$arr_date) && !preg_match("/[Aa]pa/",$get
 if (preg_match("/[Ss][Ee][Ll][Ee][Ss][Aa][Ii]|[Kk][Ee][Ll][Aa][Rr]|[Dd][Oo][Nn][Ee]|[Hh][Aa][Pp][Uu][Ss]/", $getMesg)) {
     if (preg_match_all("/[1-9]\d*/", $getMesg, $ArrId)) {
         $Id = sprintf($ArrId[0][0]);
-        // echo $Id."\n";
     }
     else {
         echo "Selesai apa? Masukkan Task ke berapanya ya!";
